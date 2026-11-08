@@ -1,0 +1,130 @@
+/* ==========================================================================
+   LIQUID GLASS FLUID — 全屏液态玻璃流体转场
+   一层清晰的玻璃面（只压暗 + 提饱和，零模糊）从屏幕中心涌出、旋转铺满整屏，
+   再流回中心。结构：#page-transition > .lt-glass + canvas（高光/液滴）+ 文案
+   ========================================================================== */
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 20000;
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+.page-transition.is-on {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* 液态玻璃本体：超大、非对称圆角、靠旋转与缩放制造"流动" */
+/* 液态玻璃本体：超大、非对称圆角、靠旋转与缩放制造"流动"。
+   关键：不做任何模糊（blur=0），只压暗 + 高光，保证画面始终是清晰的。 */
+.lt-glass {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 190vmax;
+  height: 190vmax;
+  margin: -95vmax 0 0 -95vmax;
+  border-radius: 62% 38% 54% 46% / 46% 58% 42% 54%;
+  background:
+    radial-gradient(48% 42% at 36% 28%, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0) 58%),
+    radial-gradient(44% 38% at 64% 72%, rgba(130, 180, 255, 0.16), rgba(130, 180, 255, 0) 64%),
+    radial-gradient(120% 120% at 50% 48%, rgba(22, 32, 54, 0.9), rgba(6, 9, 15, 0.96) 72%);
+  backdrop-filter: saturate(1.35) brightness(0.5);
+  -webkit-backdrop-filter: saturate(1.35) brightness(0.5);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.28),
+    inset 0 2px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(255, 255, 255, 0.16),
+    inset 0 0 40px rgba(255, 255, 255, 0.1),
+    0 0 26px rgba(180, 220, 255, 0.26);
+  transform: scale(0.02) rotate(-14deg);
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+
+/* 表面细节：细小的液滴与高光，画在玻璃之上但很轻 */
+.lt-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* 过渡中的说明文字（沿用原来的 mono 排版，不做新样式） */
+.pt-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(38px, 8vh, 90px);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.92);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+
+.pt-label em {
+  color: rgba(255, 255, 255, 0.4);
+  font-style: normal;
+  font-size: 7px;
+  letter-spacing: 0.36em;
+}
+
+.pt-label::after {
+  content: "";
+  width: 130px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  transform: scaleX(0.2);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.page-transition.is-peak .pt-label {
+  opacity: 1;
+  transform: none;
+}
+
+.page-transition.is-peak .pt-label::after {
+  transform: scaleX(1);
+  transition-delay: 0.08s;
+}
+
+body.is-transitioning {
+  overflow: hidden;
+}
+
+/* 液态玻璃转场期间，新页面不要自带"模糊淡入"，否则揭开时会糊一下 */
+body.is-lt .view {
+  animation: none !important;
+}
+
+/* 手机端：保持同样的清晰度，只是把压暗幅度略减，避免长时间压黑 */
+@media (max-width: 820px), (pointer: coarse) {
+  .lt-glass {
+    backdrop-filter: saturate(1.3) brightness(0.56);
+    -webkit-backdrop-filter: saturate(1.3) brightness(0.56);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    display: none !important;
+  }
+}

@@ -1,0 +1,50 @@
+1440 survivor {
+  canvas: true,
+  body: 'LEVEL: 1\n' +
+    'XP\n' +
+    'TIME: 00:02\n' +
+    'Wave: Opening\n' +
+    'Best: 00:00 · 0K\n' +
+    'KILLS: 0\n' +
+    '⏸\n' +
+    'HP: 100/100\n' +
+    '⚔️\n' +
+    '1\n' +
+    '\n' +
+    'How to play\n' +
+    'You are auto-attacking. Move with WASD or arrow keys; weapons fire on their own.\n' +
+    'Pic',
+  overflow: false,
+  plays: 1
+} [] []
+1440 hextris {
+  canvas: true,
+  body: 'HIGH SCORE\nHIGH SCORE\n0\nFACEBOOK\nTWITTER',
+  overflow: false,
+  plays: 1
+} [] []
+390 survivor {
+  canvas: true,
+  body: 'LEVEL: 1\n' +
+    'XP\n' +
+    'TIME: 00:02\n' +
+    'Wave: Opening\n' +
+    'Best: 00:00 · 0K\n' +
+    'KILLS: 0\n' +
+    '⏸\n' +
+    'HP: 100/100\n' +
+    '⚔️\n' +
+    '1\n' +
+    '\n' +
+    'How to play\n' +
+    'You are auto-attacking. Move with WASD or arrow keys; weapons fire on their own.\n' +
+    'Pic',
+  overflow: false,
+  plays: 2
+} [] []
+390 hextris {
+  canvas: true,
+  body: 'HIGH SCORE\nHIGH SCORE\n0\nFACEBOOK\nTWITTER',
+  overflow: false,
+  plays: 2
+} [] []

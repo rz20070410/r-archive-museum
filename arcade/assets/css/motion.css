@@ -1,0 +1,71 @@
+/* ==========================================================================
+   MOTION LAYER · choreography on top of the existing design language
+   Only transform / opacity. No new colours, fonts, borders or copy.
+   ========================================================================== */
+
+/* ---------- 1. 顶部胶囊：同一个白胶囊，改成会滑动的指示器 ---------- */
+/* 注意：.site-tabs 本身是 position: sticky，这里不能改它的 position，
+   否则吸顶会失效。sticky 已经是定位元素，绝对定位的子元素会以它为基准。 */
+.site-tabs.has-pill a {
+  position: relative;
+  z-index: 1;
+}
+.site-tabs.has-pill a.is-active {
+  /* 胶囊由 .tab-pill 承担，链接本身透明，避免两层白底 */
+  background: transparent;
+  box-shadow: none;
+}
+.tab-pill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 0;
+  width: 0;
+  height: 0;
+  border-radius: 9px;
+  background: #f5f5f7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  will-change: transform, width;
+  transition:
+    transform 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    width 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    height 0.28s ease,
+    opacity 0.24s ease;
+}
+.tab-pill.is-on {
+  opacity: 1;
+}
+.tab-pill.no-anim {
+  transition: none !important;
+}
+
+/* ---------- 2. 滚动惯性：随滚速产生的轻微位移 / 倾斜，停下即回正 ---------- */
+html:not(.is-mobile) #game-grid:not(.rgb-ring) {
+  transform: skewY(calc(var(--mt-vel, 0) * 0.34deg));
+  transform-origin: 50% 50%;
+}
+/* 背景大字在滚动时被"风"带走一点，和原有漂移动画叠加（translate 独立于 transform） */
+html:not(.is-mobile) .bg-word {
+  translate: calc(var(--mt-vel, 0) * -18px) calc(var(--mt-vel, 0) * 10px);
+}
+
+/* ---------- 3. 真实音频驱动的律动条（播放时接管原来的 CSS 循环） ---------- */
+.music-player.is-playing .mp-eq.is-live span {
+  animation: none !important;
+  transition: none;
+}
+
+/* ---------- 降级 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .tab-pill {
+    transition: none !important;
+  }
+  html #game-grid {
+    transform: none !important;
+  }
+  .music-player.is-playing .mp-eq.is-live span {
+    transition: none;
+  }
+}

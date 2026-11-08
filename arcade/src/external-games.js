@@ -1,0 +1,3 @@
+/* Third-party games run in separate documents. */
+Arcade.register({id:'survivor',title:'弹幕生存',icon:'🦇',tags:['街机','挑战'],difficulty:'困难',order:90,accent:'#bb66ff',subtitle:'自动攻击 · 武器升级 · 怪潮求生',description:'Survivor：自动攻击的生存冒险，升级武器并挑战首领。',help:'WASD / 方向键移动；触屏使用游戏自带虚拟摇杆；在设置中选择中文。',url:'vendor/survivor/index.html',source:'https://github.com/ricardo-foundry/canvas-vampire-survivors',license:'MIT'});
+Arcade.register({id:'hextris',title:'六边形消除',icon:'⬡',tags:['益智','挑战'],difficulty:'中等',order:95,accent:'#34b5ee',subtitle:'旋转六边形 · 同色消除',description:'Hextris：旋转中央六边形，连接同色方块并争取高分。',help:'左右方向键旋转；触屏点击屏幕左右两侧。暂停和重新开始使用游戏内按钮。',url:'vendor/hextris/index.html',source:'https://github.com/hextris/hextris',license:'GPL-3.0'});

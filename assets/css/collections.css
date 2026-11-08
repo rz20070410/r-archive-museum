@@ -1,0 +1,16 @@
+.book-screening:not(.is-grid) .book-gallery{display:none}
+.book-screening .film-target{background:transparent!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important}
+.book-screening .film-copy h1{font-size:clamp(36px,4.6vw,82px);line-height:1.2}
+.book-screening .film-name{font-size:clamp(17px,2vw,29px)}
+.book-screening .film-caption{max-width:32em;line-height:1.65;text-wrap:pretty}
+.book-screening .film-tools{z-index:6}
+.book-screening.is-grid .book-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,245px),1fr));gap:clamp(12px,2vw,26px)}
+.book-screening .book-object{font:inherit;text-align:left;color:white;display:flex;flex-direction:column;align-items:stretch;padding:7px;gap:0;min-width:0;overflow:hidden;cursor:pointer;background:var(--crystal-face);border:1px solid var(--crystal-edge);box-shadow:var(--crystal-shadow);border-radius:23px;backdrop-filter:blur(18px)}
+.book-screening .book-jacket{aspect-ratio:1.42}.book-screening .book-jacket img{width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+.book-screening .book-info strong{font-size:clamp(19px,1.6vw,28px)}
+.rights-book{padding:clamp(15px,4vw,55px);display:grid;grid-template-columns:minmax(100px,30%) 1fr;gap:clamp(18px,4vw,45px);align-items:center;height:100%;overflow:auto;background:#f5f4f0;color:#202025}
+.rights-book img{width:100%;border-radius:14px}.rights-book h3{font:500 clamp(24px,4vw,50px)/1.2 Georgia,"SimSun",serif;margin:.4em 0}.rights-book p{line-height:1.85}.rights-book a{color:#173b93!important}
+.sculpture-room .work-tabs{display:flex;flex-wrap:wrap;gap:7px;max-width:100%;width:fit-content;height:auto}
+.sculpture-room .work-tabs button{min-width:0}
+@media(max-width:700px){.book-screening.is-grid .book-gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.book-screening .book-object{padding:5px;border-radius:17px}.book-screening .film-copy h1{font-size:clamp(27px,7.5vw,46px)}.book-screening .film-caption{font-size:13px;margin:7px 0 11px}.book-screening .film-copy{width:88%;bottom:17%}.rights-book{height:auto;min-height:100%;grid-template-columns:1fr}.rights-book img{max-width:180px}.sculpture-room .work-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:4px}.sculpture-room .work-tabs button{width:100%;padding:6px;font-size:11px}.sculpture-room .work-tabs button img{width:22px;height:22px}}
+@media(max-width:330px){.book-screening.is-grid .book-gallery{grid-template-columns:1fr}}

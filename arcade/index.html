@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <script>if(matchMedia("(pointer: coarse), (max-width: 820px)").matches)document.documentElement.classList.add("is-mobile");</script>
+  <script>
+    /* 新版银弧展厅的嵌入式舞台：?embed=1 或被 iframe 嵌入时启用
+       —— 只隐藏旧站开场/播放器等外壳，游戏本体与存档逻辑不变。 */
+    (function () {
+      var embedded = /[?&]embed=1(?:&|$)/.test(location.search);
+      if (!embedded) {
+        try { if (window.self !== window.top) embedded = true; } catch (e) {}
+      }
+      if (embedded) document.documentElement.classList.add('is-embed');
+    })();
+  </script>
+  <title>R`s GAME BOX</title>
+  <meta name="description" content="R`s GAME BOX：17 款浏览器小游戏，打开即玩，无需安装。">
+  <meta name="theme-color" content="#000000">
+  <link rel="icon" type="image/png" sizes="512x512" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="R`s GAME BOX">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/ios.css">
+  <link rel="stylesheet" href="assets/css/ring.css">
+  <link rel="stylesheet" href="assets/css/fx.css">
+  <link rel="stylesheet" href="vendor/visual/lenis.css">
+  <link rel="stylesheet" href="assets/css/universe.css">
+<link rel="stylesheet" href="assets/css/edition.css">
+  <link rel="stylesheet" href="assets/css/landing.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <link rel="stylesheet" href="assets/css/refine.css">
+  <link rel="stylesheet" href="assets/css/final.css">
+  <link rel="stylesheet" href="assets/css/transition.css">
+  <link rel="stylesheet" href="assets/css/mobile.css">
+  <link rel="stylesheet" href="assets/css/offline.css">
+  <link rel="stylesheet" href="assets/css/motion.css">
+  <link rel="stylesheet" href="assets/css/embed.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#/" aria-label="R`s GAME BOX 首页">
+      <span class="brand-mark" aria-hidden="true">
+        <span class="brand-mark__glyph">R</span>
+      </span>
+      <span class="brand-text">
+        <strong>R`s GAME BOX</strong>
+        <small>GAME BOX</small>
+      </span>
+    </a>
+    <div class="header-actions">
+      <button type="button" class="icon-btn" id="music-toggle" title="音乐播放器" aria-label="音乐播放器" aria-expanded="true">🎵</button>
+      <button type="button" class="icon-btn" id="sound-toggle" title="静音 (M)" aria-label="静音">🔊</button>
+      <button type="button" class="btn btn-ghost btn-sm" id="header-random">
+        <span aria-hidden="true">🎲</span><span class="btn-label">随机开一局</span>
+      </button>
+    </div>
+  </header>
+
+  <nav class="site-tabs" aria-label="页面切换">
+    <a href="#/origin" data-route="origin"><em>01</em><span>初心</span></a>
+    <a href="#/" data-route="games" class="is-active"><em>02</em><span>游戏</span></a>
+    <a href="#/next" data-route="next"><em>03</em><span>未来</span></a>
+  </nav>
+
+  <main id="app" class="app"></main>
+
+  <footer class="site-footer">
+    <p class="footer-line">
+      <span class="footer-dot" aria-hidden="true"></span>
+      R`s GAME BOX · 本地存档 · 无后端
+    </p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <audio id="site-bgm" preload="none"></audio>
+
+  <aside class="music-player" id="music-player" aria-label="音乐播放器">
+    <div class="mp-main">
+      <div class="mp-cover" aria-hidden="true">R</div>
+      <div class="mp-info">
+        <div class="mp-title" id="mp-title">A COLD PLAY</div>
+        <div class="mp-artist" id="mp-artist">The Kid LAROI</div>
+      </div>
+      <div class="mp-buttons">
+        <button type="button" class="mp-btn" id="mp-prev" aria-label="上一首">⏮</button>
+        <button type="button" class="mp-btn mp-play" id="mp-play" aria-label="播放">▶</button>
+        <button type="button" class="mp-btn" id="mp-next" aria-label="下一首">⏭</button>
+        <button type="button" class="mp-btn" id="mp-loop" aria-label="列表循环">🔁</button>
+        <button type="button" class="mp-btn" id="mp-mute" aria-label="静音">🔊</button>
+        <button type="button" class="mp-btn" id="mp-list-btn" aria-label="播放列表">≡</button>
+        <button type="button" class="mp-btn" id="mp-close" aria-label="收起播放器">×</button>
+      </div>
+    </div>
+    <div class="mp-progress-row">
+      <span class="mp-time" id="mp-current">0:00</span>
+      <input class="mp-seek" id="mp-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="播放进度">
+      <span class="mp-time" id="mp-duration">0:00</span>
+    </div>
+    <div class="mp-list" id="mp-list" hidden></div>
+  </aside>
+
+  <script src="src/core/storage.js"></script>
+  <script src="src/core/audio.js"></script>
+  <script src="src/core/engine.js"></script>
+
+  <script src="src/playlist.js"></script>
+  <script src="src/games/snake.js"></script>
+  <script src="src/games/breakout.js"></script>
+  <script src="src/games/tetris.js"></script>
+  <script src="src/games/g2048.js"></script>
+  <script src="src/games/minesweeper.js"></script>
+  <script src="src/games/space.js"></script>
+  <script src="src/games/flappy.js"></script>
+  <script src="src/games/memory.js"></script>
+  <script src="src/games/gomoku.js"></script>
+  <script src="src/games/suika.js"></script>
+  <script src="src/games/sheep.js"></script>
+  <script src="src/games/pool.js"></script>
+  <script src="src/games/tower.js"></script>
+  <script src="src/games/solitaire.js"></script>
+  <script src="src/games/xiangqi.js"></script>
+  <script src="src/games/minesweeper-master.js"></script>
+  <script src="src/games/xiangqi-master.js"></script>
+  <script src="src/games/gomoku-master.js"></script>
+  <script src="src/games/sonar.js"></script>
+  <script src="src/games/syncrings.js"></script>
+  <script src="src/games/mirror.js"></script>
+
+  <script src="src/external-games.js"></script>
+  <script src="src/card-art.js"></script>
+  <script src="src/app.js"></script>
+  <script src="src/ring.js"></script>
+  <script src="vendor/visual/lenis.min.js"></script>
+  <script src="vendor/visual/vanilla-tilt.min.js"></script>
+  <script src="src/fx.js"></script>
+  <script src="src/universe.js"></script>
+  <script src="src/landing.js"></script>
+  <script src="src/cube.js"></script>
+  <script src="src/gacha.js"></script>
+  <script src="src/offline.js"></script>
+  <script src="src/motion.js"></script>
+</body>
+</html>
+

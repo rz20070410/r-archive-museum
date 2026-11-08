@@ -1,0 +1,25 @@
+{
+  "name": "R`s GAME BOX",
+  "short_name": "GAME BOX",
+  "description": "23 款浏览器小游戏，离线可玩。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05070b",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/assets/img/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/img/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

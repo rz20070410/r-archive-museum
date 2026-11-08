@@ -1,0 +1,956 @@
+/* ==========================================================================
+   R ARCHIVE · player.css
+   黑银唱片播放器（assets/js/player.js）——拉丝金属面板 / 细银发丝线 /
+   同心纹黑胶 / 摆动唱臂 / 冰蓝微光 / 克制玻璃模糊。
+   DOM 常驻 #player-root（#app 之外）：桌面右下浮动，手机底部安全区上方
+   bottom sheet；游戏舞台 body.is-stage 时缩为右下角「唱片 + 播放」小圆钮。
+   只使用 base.css 令牌（--silver-* / --line / --ice / --font-* / --ease-*）。
+   ========================================================================== */
+
+/* ---------- 常驻容器 ---------- */
+#player-root {
+  position: relative;
+  z-index: var(--z-player);
+}
+
+.vinyl-player {
+  position: fixed;
+  right: clamp(14px, 2.4vw, 32px);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: var(--z-player);
+  width: 306px;
+  max-width: calc(100vw - 28px);
+  color: var(--silver-1);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.01em;
+  -webkit-tap-highlight-color: transparent;
+  transition: width 0.6s var(--ease-out);
+}
+.vinyl-player.is-open { width: 344px; }
+.vinyl-player *,
+.vinyl-player *::before,
+.vinyl-player *::after { box-sizing: border-box; }
+
+/* ---------- 面板本体：黑银拉丝金属 + 玻璃 ---------- */
+.vp-card {
+  position: relative;
+  border: 1px solid rgba(226, 235, 246, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  background:
+    radial-gradient(130% 90% at 100% 0%, rgba(255, 255, 255, 0.07), transparent 54%),
+    linear-gradient(158deg, rgba(23, 28, 35, 0.9), rgba(9, 12, 15, 0.94) 58%, rgba(5, 7, 9, 0.96));
+  -webkit-backdrop-filter: blur(26px) saturate(1.08);
+  backdrop-filter: blur(26px) saturate(1.08);
+  box-shadow:
+    0 34px 80px -30px rgba(0, 0, 0, 0.92),
+    0 2px 12px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.055);
+  transition: box-shadow 0.6s var(--ease-out), border-color 0.5s var(--ease-out);
+}
+.vinyl-player.is-open .vp-card {
+  border-color: rgba(226, 235, 246, 0.22);
+  box-shadow:
+    0 42px 110px -34px rgba(0, 0, 0, 0.95),
+    0 2px 16px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+/* 拉丝金属纹理（水平细纹 + 极细垂直纹） */
+.vp-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.028) 0 1px, rgba(255, 255, 255, 0) 1px 4px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, rgba(255, 255, 255, 0) 1px 6px);
+}
+/* 顶部银发丝线 */
+.vp-card::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(246, 248, 251, 0.55) 16%,
+    rgba(246, 248, 251, 0.16) 52%,
+    transparent);
+}
+.vp-card > * { position: relative; z-index: 1; }
+
+/* 手机上展开时的小握把（桌面隐藏） */
+.vp-grip {
+  display: none;
+  width: 26px;
+  height: 1px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ---------- 序号 / 状态微标 + 冰蓝指示灯 ---------- */
+.vp-serial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 9px 14px 0;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--silver-4);
+  user-select: none;
+}
+.vp-serial__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--silver-3);
+}
+.vp-serial__status b {
+  font-weight: 400;
+  letter-spacing: 0.22em;
+}
+.vp-led {
+  display: block;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--ice-dim);
+  opacity: 0.4;
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  transition: opacity 0.45s, box-shadow 0.45s, background 0.45s;
+}
+.vinyl-player.is-playing .vp-led {
+  background: var(--ice);
+  opacity: 1;
+  box-shadow: 0 0 7px 1px var(--ice-glow);
+}
+.vinyl-player.has-error .vp-led {
+  background: var(--danger);
+  opacity: 0.85;
+  box-shadow: 0 0 6px rgba(231, 166, 166, 0.35);
+}
+
+/* ---------- 紧凑行：唱盘 + 标题 + 播放 ---------- */
+.vp-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px 12px;
+}
+.vp-open {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 3px 0;
+  border: 0;
+  border-radius: 2px;
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+}
+.vp-open:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 3px;
+}
+
+/* 唱盘 */
+.vp-deck {
+  position: relative;
+  flex: 0 0 54px;
+  width: 54px;
+  height: 54px;
+}
+.vp-disc {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 27%, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0) 46%),
+    repeating-radial-gradient(circle at 50% 50%, #191d23 0 1px, #0a0c0f 1px 2.3px),
+    #0a0c0f;
+  box-shadow:
+    inset 0 0 0 1px rgba(236, 242, 249, 0.2),
+    inset 0 0 0 2px rgba(0, 0, 0, 0.55),
+    0 7px 18px rgba(0, 0, 0, 0.55);
+  animation: vp-spin 5.2s linear infinite;
+  animation-play-state: paused;
+  will-change: transform;
+}
+.vinyl-player.is-playing .vp-disc { animation-play-state: running; }
+@keyframes vp-spin { to { transform: rotate(1turn); } }
+
+/* 中心银标 + 唱片孔（微缩纹理假装 label 文字） */
+.vp-disc__label {
+  position: absolute;
+  inset: 31%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 36% 30%, #fbfdff 0%, #cbd4df 46%, #8d98a5 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.55),
+    inset 0 0 8px rgba(0, 0, 0, 0.22);
+}
+.vp-disc__label::before {
+  content: "";
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  opacity: 0.5;
+  background: repeating-linear-gradient(0deg,
+    rgba(10, 13, 17, 0.42) 0 0.5px,
+    transparent 0.5px 1.6px);
+  -webkit-mask: radial-gradient(circle, transparent 25%, #000 26%);
+  mask: radial-gradient(circle, transparent 25%, #000 26%);
+}
+.vp-disc__hole {
+  display: block;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #05070a;
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.4);
+}
+
+/* 唱臂：静止抬起，播放时摆入唱片 */
+.vp-tonearm {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--silver-2);
+  transform-origin: 83.6% 16.3%;
+  transform: rotate(-27deg);
+  transition: transform 1s var(--ease-out);
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.6));
+}
+.vinyl-player.is-playing .vp-tonearm { transform: rotate(0deg); }
+
+/* 曲目元信息 */
+.vp-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vp-title {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: var(--silver-0);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vp-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--silver-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vinyl-player.is-playing .vp-sub { color: var(--silver-2); }
+.vinyl-player.has-error .vp-sub { color: var(--danger); }
+
+/* 展开箭头 */
+.vp-caret {
+  flex: 0 0 10px;
+  display: grid;
+  place-items: center;
+  color: var(--silver-4);
+  transition: transform 0.5s var(--ease-out), color 0.4s;
+}
+.vp-caret svg {
+  display: block;
+  width: 9px;
+  height: 5.4px;
+}
+.vinyl-player.is-open .vp-caret {
+  transform: rotate(180deg);
+  color: var(--silver-2);
+}
+
+/* 播放 / 暂停圆钮 */
+.vp-play {
+  position: relative;
+  flex: 0 0 44px;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--silver-1);
+  background:
+    radial-gradient(circle at 34% 26%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 58%),
+    rgba(255, 255, 255, 0.02);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.5),
+    inset 0 -9px 16px rgba(0, 0, 0, 0.35);
+  transition:
+    color 0.35s,
+    border-color 0.35s,
+    background 0.35s,
+    opacity 0.3s,
+    transform 0.35s var(--ease-snap);
+}
+.vp-play:hover:not([disabled]),
+.vp-play:focus-visible:not([disabled]) {
+  color: var(--ink);
+  border-color: var(--silver-0);
+  background: var(--silver-0);
+}
+.vp-play:active:not([disabled]) { transform: scale(0.94); }
+.vp-play svg {
+  width: 14px;
+  height: 14px;
+}
+.vp-play .vp-ico {
+  position: absolute;
+  display: none;
+  place-items: center;
+}
+.vp-play .vp-ico--play { display: grid; }
+.vinyl-player.is-playing .vp-play .vp-ico--play { display: none; }
+.vinyl-player.is-playing .vp-play .vp-ico--pause { display: grid; }
+.vp-play[disabled] {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+/* ---------- 展开 / 收起（0fr → 1fr 高度过渡） ---------- */
+.vp-panel-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.62s var(--ease-out);
+}
+.vinyl-player.is-open .vp-panel-wrap { grid-template-rows: 1fr; }
+.vp-panel {
+  min-height: 0;
+  overflow: hidden;
+}
+.vp-panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: 14px 14px 12px;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.014), transparent 40%);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.4s var(--ease-out), transform 0.55s var(--ease-out);
+  -webkit-overflow-scrolling: touch;
+}
+.vinyl-player.is-open .vp-panel-inner {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---------- 微标签 / 时间 / 计数 ---------- */
+.vp-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.vp-micro {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--silver-3);
+  white-space: nowrap;
+}
+.vp-count {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--silver-4);
+}
+.vp-time {
+  display: inline-flex;
+  gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--silver-3);
+  font-variant-numeric: tabular-nums;
+}
+.vp-time [data-vp-time] { color: var(--silver-1); }
+.vp-time i {
+  font-style: normal;
+  color: var(--silver-4);
+}
+
+/* ---------- 错误提示（内联） ---------- */
+.vp-error {
+  padding: 7px 10px;
+  border: 1px solid rgba(231, 166, 166, 0.26);
+  border-radius: 2px;
+  background: rgba(231, 166, 166, 0.06);
+  color: var(--danger);
+  font-family: var(--font-mono);
+  font-size: 8px;
+  line-height: 1.8;
+  letter-spacing: 0.12em;
+}
+
+/* ---------- 进度 ---------- */
+.vp-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+/* 自定义银色滑杆（原生 range，键盘/触控/拖动都可用） */
+.vp-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.vp-range:focus-visible { outline: none; }
+.vp-range::-webkit-slider-runnable-track {
+  height: 2px;
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg,
+      var(--silver-2) 0,
+      var(--silver-2) var(--fill, 0%),
+      rgba(255, 255, 255, 0.12) var(--fill, 0%),
+      rgba(255, 255, 255, 0.12) 100%);
+}
+.vp-range::-moz-range-track {
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+.vp-range::-moz-range-progress {
+  height: 2px;
+  border-radius: 2px;
+  background: var(--silver-2);
+}
+.vp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 8px;
+  height: 8px;
+  margin-top: -3px;
+  border-radius: 50%;
+  background: var(--silver-0);
+  box-shadow:
+    0 0 0 3px rgba(169, 217, 255, 0.1),
+    0 1px 4px rgba(0, 0, 0, 0.7);
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.vp-range:hover::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 5px rgba(169, 217, 255, 0.16),
+    0 1px 5px rgba(0, 0, 0, 0.7);
+}
+.vp-range:focus-visible::-webkit-slider-thumb {
+  box-shadow:
+    0 0 0 5px rgba(169, 217, 255, 0.34),
+    0 1px 5px rgba(0, 0, 0, 0.7);
+}
+.vp-range::-moz-range-thumb {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--silver-0);
+  box-shadow:
+    0 0 0 3px rgba(169, 217, 255, 0.1),
+    0 1px 4px rgba(0, 0, 0, 0.7);
+}
+.vp-range[disabled] {
+  opacity: 0.28;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.vp-range--vol { height: 16px; }
+
+/* ---------- 传输控件 ---------- */
+.vp-transport {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.vp-btn {
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--silver-2);
+  transition: color 0.3s, border-color 0.3s, background 0.3s, opacity 0.3s;
+}
+.vp-btn svg {
+  width: 12px;
+  height: 12px;
+}
+.vp-btn:hover:not([disabled]),
+.vp-btn:focus-visible:not([disabled]) {
+  color: var(--silver-0);
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+.vp-btn[disabled] {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+.vp-loop {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  color: var(--silver-3);
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.2em;
+  transition: color 0.3s, border-color 0.3s, background 0.3s, opacity 0.3s;
+}
+.vp-loop svg {
+  width: 12px;
+  height: 12px;
+}
+.vp-loop:hover:not([disabled]),
+.vp-loop:focus-visible:not([disabled]) {
+  color: var(--silver-0);
+  border-color: var(--line-strong);
+  background: rgba(255, 255, 255, 0.05);
+}
+.vp-loop.is-on {
+  color: var(--ice);
+  border-color: rgba(169, 217, 255, 0.34);
+  background: rgba(169, 217, 255, 0.06);
+}
+.vp-loop[disabled] {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+.vp-mute { margin-left: auto; }
+.vp-mute.is-on {
+  color: var(--danger);
+  border-color: rgba(231, 166, 166, 0.3);
+}
+.vp-mute svg {
+  width: 12px;
+  height: 12px;
+}
+.vp-mute .vp-ico {
+  position: absolute;
+  display: none;
+  place-items: center;
+}
+.vp-mute { position: relative; }
+.vp-mute .vp-ico--vol { display: grid; }
+.vinyl-player.is-muted .vp-mute .vp-ico--vol { display: none; }
+.vinyl-player.is-muted .vp-mute .vp-ico--mute { display: grid; }
+
+/* ---------- 曲目列表 ---------- */
+.vp-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.vp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-height: 212px;
+  margin: 0 -5px;
+  padding: 1px 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+.vp-list::-webkit-scrollbar { width: 4px; }
+.vp-list::-webkit-scrollbar-track { background: transparent; }
+.vp-list::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+}
+.vp-list::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.24); }
+.vinyl-player[data-empty="true"] .vp-list { display: none; }
+.vp-list__item { margin: 0; padding: 0; list-style: none; }
+
+.vp-row {
+  position: relative;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px 7px 6px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  text-align: left;
+  color: var(--silver-2);
+  transition: background 0.3s, border-color 0.3s, color 0.3s;
+}
+.vp-row:hover {
+  background: rgba(255, 255, 255, 0.035);
+  border-color: rgba(255, 255, 255, 0.05);
+}
+.vp-row:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 1px;
+}
+.vp-row.is-active {
+  background: linear-gradient(90deg,
+    rgba(169, 217, 255, 0.08),
+    rgba(255, 255, 255, 0.015) 62%,
+    transparent);
+  border-color: rgba(169, 217, 255, 0.08);
+}
+.vp-row.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--ice), transparent);
+  box-shadow: 0 0 6px var(--ice-glow);
+}
+.vp-row__idx {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  color: var(--silver-4);
+}
+.vp-row.is-active .vp-row__idx { color: var(--ice-dim); }
+.vp-row__main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.vp-row__title {
+  font-size: 11.5px;
+  line-height: 1.45;
+  letter-spacing: 0.04em;
+  color: var(--silver-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vp-row:hover .vp-row__title,
+.vp-row.is-active .vp-row__title { color: var(--silver-0); }
+.vp-row__meta {
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver-4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.vp-row__time {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: var(--silver-4);
+  font-variant-numeric: tabular-nums;
+}
+.vp-row.is-active .vp-row__time { color: var(--silver-3); }
+.vp-row.is-live .vp-row__time { color: var(--ice-dim); }
+
+/* ---------- 空曲库：曲库筹备中 / NO VINYL YET ---------- */
+.vp-empty {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px 14px;
+  border: 1px dashed rgba(255, 255, 255, 0.09);
+  border-radius: 2px;
+  background: radial-gradient(120% 100% at 50% 0%, rgba(169, 217, 255, 0.05), transparent 70%);
+  text-align: center;
+}
+.vinyl-player[data-empty="true"] .vp-empty { display: flex; }
+.vp-empty__disc {
+  width: 34px;
+  height: 34px;
+  margin-bottom: 2px;
+  border-radius: 50%;
+  opacity: 0.8;
+  background:
+    radial-gradient(circle at 50% 50%, #05070a 0 12%, rgba(0, 0, 0, 0) 13%),
+    repeating-radial-gradient(circle at 50% 50%, #1b2027 0 1px, #0a0c0f 1px 2.2px);
+  box-shadow: inset 0 0 0 1px rgba(236, 242, 249, 0.16);
+}
+.vp-empty strong {
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em;
+  color: var(--silver-1);
+}
+.vp-empty em {
+  font-style: normal;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  color: var(--ice-dim);
+}
+.vp-empty p {
+  max-width: 27ch;
+  font-size: 10px;
+  line-height: 1.9;
+  letter-spacing: 0.04em;
+  color: var(--silver-3);
+}
+
+/* ---------- 音量 ---------- */
+.vp-volume {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ---------- 底部微标 ---------- */
+.vp-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.vp-foot .vp-micro {
+  font-size: 6.5px;
+  letter-spacing: 0.22em;
+  color: var(--silver-4);
+}
+
+/* ---------- 外部触发器（头 / 页脚）的播放态 ---------- */
+#footer-player.is-playing {
+  color: var(--silver-0);
+  border-bottom-color: var(--line-strong);
+}
+#footer-player[aria-expanded="true"] { color: var(--silver-0); }
+
+/* ---------- 游戏舞台：缩成右下角唱片 + 播放小圆钮 ---------- */
+body.is-stage .vinyl-player {
+  right: calc(16px + env(safe-area-inset-right, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  width: auto;
+  max-width: 150px;
+  transition: none;
+}
+body.is-stage .vinyl-player.is-open {
+  width: min(344px, calc(100vw - 28px));
+}
+body.is-stage .vinyl-player:not(.is-open) .vp-card {
+  border-radius: 99px;
+  background:
+    radial-gradient(120% 100% at 30% 0%, rgba(255, 255, 255, 0.07), transparent 60%),
+    linear-gradient(160deg, rgba(22, 27, 33, 0.92), rgba(6, 8, 11, 0.96));
+}
+body.is-stage .vinyl-player:not(.is-open) .vp-serial,
+body.is-stage .vinyl-player:not(.is-open) .vp-meta,
+body.is-stage .vinyl-player:not(.is-open) .vp-caret,
+body.is-stage .vinyl-player:not(.is-open) .vp-grip {
+  display: none;
+}
+body.is-stage .vinyl-player:not(.is-open) .vp-top {
+  gap: 6px;
+  padding: 6px 8px 6px 9px;
+}
+body.is-stage .vinyl-player:not(.is-open) .vp-open {
+  flex: 0 0 auto;
+  gap: 0;
+  padding: 0;
+}
+body.is-stage .vinyl-player:not(.is-open) .vp-deck,
+body.is-stage .vinyl-player:not(.is-open) .vp-play {
+  flex: 0 0 38px;
+  width: 38px;
+  height: 38px;
+}
+body.is-stage .vinyl-player:not(.is-open) .vp-play svg {
+  width: 12px;
+  height: 12px;
+}
+/* 舞台内展开：总高不超过可视区 60%，面板内部滚动 */
+body.is-stage .vinyl-player.is-open .vp-panel-inner {
+  max-height: calc(60vh - 78px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+body.is-stage .vinyl-player.is-open .vp-panel-inner::-webkit-scrollbar { width: 4px; }
+body.is-stage .vinyl-player.is-open .vp-panel-inner::-webkit-scrollbar-thumb {
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ==========================================================================
+   手机：底部安全区上方的 bottom sheet
+   ========================================================================== */
+@media (max-width: 820px) {
+  .vinyl-player,
+  body.is-stage .vinyl-player {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    transition: none;
+  }
+  .vinyl-player.is-open,
+  body.is-stage .vinyl-player.is-open {
+    width: 100%;
+    max-width: none;
+  }
+  .vp-card {
+    border-right: 0;
+    border-left: 0;
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+  }
+  .vinyl-player.is-open .vp-card { border-color: rgba(226, 235, 246, 0.2); }
+  .vp-grip {
+    display: block;
+    margin: 7px auto 1px;
+  }
+  .vp-serial {
+    padding: 6px 14px 0;
+    font-size: 7px;
+    letter-spacing: 0.22em;
+  }
+  .vinyl-player:not(.is-open) .vp-serial { display: none; }
+  .vinyl-player:not(.is-open) .vp-grip { display: none; }
+  .vp-top {
+    gap: 10px;
+    padding: 9px 12px 11px;
+  }
+  .vp-deck { flex-basis: 44px; width: 44px; height: 44px; }
+  .vp-play { flex-basis: 42px; width: 42px; height: 42px; }
+  .vp-title { font-size: 12.5px; letter-spacing: 0.14em; }
+  .vp-panel-inner {
+    gap: 12px;
+    padding: 12px 14px 14px;
+  }
+  .vinyl-player.is-open .vp-panel-inner {
+    max-height: calc(100vh - 92px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  }
+  .vinyl-player.is-open .vp-panel-inner::-webkit-scrollbar { width: 4px; }
+  .vinyl-player.is-open .vp-panel-inner::-webkit-scrollbar-thumb {
+    border-radius: 99px;
+    background: rgba(255, 255, 255, 0.16);
+  }
+  .vp-list { max-height: min(31vh, 236px); }
+  .vp-empty { padding: 14px 10px 12px; }
+  .vp-foot { display: none; }
+  /* 触控目标加大 */
+  .vp-range,
+  .vp-range--vol { height: 24px; }
+  .vp-range::-webkit-slider-thumb {
+    width: 11px;
+    height: 11px;
+    margin-top: -4.5px;
+  }
+  .vp-range::-moz-range-thumb { width: 11px; height: 11px; }
+  .vp-btn {
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+  }
+  .vp-loop { height: 36px; }
+  .vp-play[disabled] { opacity: 0.35; }
+
+  /* 舞台内：保持右下角小圆钮（不铺满底边） */
+  body.is-stage .vinyl-player {
+    left: auto;
+    right: calc(10px + env(safe-area-inset-right, 0px));
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    width: auto;
+    max-width: 150px;
+    padding-bottom: 0;
+  }
+  body.is-stage .vinyl-player:not(.is-open) .vp-card {
+    border: 1px solid rgba(226, 235, 246, 0.15);
+    border-radius: 99px;
+  }
+  body.is-stage .vinyl-player.is-open {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  body.is-stage .vinyl-player.is-open .vp-card {
+    border-radius: 8px 8px 0 0;
+  }
+  body.is-stage .vinyl-player.is-open .vp-panel-inner {
+    max-height: calc(60vh - 64px);
+  }
+}
+
+/* 超矮视口（横屏手机）：面板内部滚动，列表更矮 */
+@media (max-width: 820px) and (max-height: 520px) {
+  .vp-list { max-height: 18vh; }
+  .vp-empty p { display: none; }
+}
+
+/* ---------- 减少动态：唱片停转、无大幅过渡 ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .vinyl-player .vp-disc {
+    animation: none !important;
+    transform: none !important;
+  }
+  .vinyl-player,
+  .vinyl-player .vp-card,
+  .vinyl-player .vp-panel-wrap,
+  .vinyl-player .vp-panel-inner,
+  .vinyl-player .vp-caret,
+  .vinyl-player .vp-tonearm,
+  .vinyl-player .vp-play {
+    transition: none !important;
+  }
+  .vinyl-player .vp-tonearm { transform: rotate(-27deg); }
+  .vinyl-player.is-playing .vp-tonearm { transform: rotate(0deg); }
+}

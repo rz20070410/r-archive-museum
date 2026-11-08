@@ -1,0 +1,28 @@
+/* 用访问者原图作为卡片背景，并恢复图标原色 */
+.game-card,
+.rgb-ring .game-card {
+  background-color: #05080e !important;
+  background-image:
+    linear-gradient(180deg, rgba(4, 8, 14, 0.08) 0%, rgba(4, 8, 14, 0.30) 38%, rgba(4, 8, 14, 0.82) 74%, rgba(4, 8, 14, 0.96) 100%),
+    var(--card-bg) !important;
+  background-position: center !important;
+  background-size: cover !important;
+  background-repeat: no-repeat !important;
+}
+.game-card .card-icon,
+.rgb-ring .game-card .card-icon {
+  filter: none !important;
+}
+.game-card .card-icon img,
+.rgb-ring .game-card .card-icon img {
+  filter: brightness(1.05) contrast(1.02) !important;
+  opacity: 1 !important;
+}
+@media (max-width: 700px) {
+  .game-card,
+  .rgb-ring .game-card {
+    background-image:
+      linear-gradient(180deg, rgba(4, 8, 14, 0.10) 0%, rgba(4, 8, 14, 0.36) 38%, rgba(4, 8, 14, 0.88) 78%, rgba(4, 8, 14, 0.97) 100%),
+      var(--card-bg) !important;
+  }
+}

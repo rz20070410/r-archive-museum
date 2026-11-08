@@ -1,0 +1,118 @@
+/* ==========================================================================
+   旧站 arcade 的嵌入式舞台适配（新版 SILVER ARCADE 的 #/play 使用）
+   仅在 html.is-embed 时生效：隐藏旧站外壳、开场、播放器，只保留真实游戏
+   ========================================================================== */
+
+html.is-embed,
+html.is-embed body {
+  background: #05070e !important;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+html.is-embed .site-header,
+html.is-embed .site-tabs,
+html.is-embed .site-footer,
+html.is-embed .music-player,
+html.is-embed #music-player,
+html.is-embed .toast,
+html.is-embed .landing-grain,
+html.is-embed .rgb-controls,
+html.is-embed .rgb-intro,
+html.is-embed [id^="fx-"],
+html.is-embed .fx-rays,
+html.is-embed .fx-orb,
+html.is-embed .fx-meteor,
+html.is-embed .fx-marquee,
+html.is-embed #music-toggle,
+html.is-embed #sound-toggle,
+html.is-embed #header-random,
+html.is-embed .offline-banner,
+html.is-embed .offline-toast {
+  display: none !important;
+}
+
+html.is-embed .app {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+html.is-embed .view--play,
+html.is-embed .external-page {
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #05070e !important;
+  box-shadow: none !important;
+  min-height: 100vh;
+  animation: none !important;
+}
+
+html.is-embed .play-bar,
+html.is-embed .side,
+html.is-embed .stage-hint {
+  display: none !important;
+}
+
+html.is-embed .play-layout,
+html.is-embed .external-layout {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+html.is-embed .stage-col {
+  max-width: min(100%, calc((100dvh - 190px) * var(--ar, 1.333333))) !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 12px 10px 8px !important;
+  gap: 8px !important;
+}
+
+html.is-embed .hud {
+  border-radius: 10px;
+  padding: 7px 10px;
+  background: rgba(10, 12, 17, 0.86);
+}
+
+html.is-embed .stage {
+  border-radius: 10px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+  border-color: rgba(214, 226, 240, 0.16);
+}
+
+html.is-embed .status-bar {
+  margin: 2px 2px 0;
+  border-radius: 8px;
+}
+
+html.is-embed .external-feature {
+  height: 100dvh !important;
+  min-height: 100dvh !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  width: 100% !important;
+  box-shadow: none !important;
+}
+
+html.is-embed .touch-dock {
+  padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+}
+
+html.is-embed body::after {
+  display: none;
+}
+
+@media (max-width: 820px) {
+  html.is-embed .stage-col {
+    max-width: min(100%, calc((100dvh - 250px) * var(--ar, 1.333333))) !important;
+    padding: 8px 6px 6px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.is-embed .view { animation: none !important; }
+}

@@ -1,0 +1,317 @@
+/* ==========================================================================
+   REFINE · wallpaper cube, liquid glass cards, ink / floating text, text fx
+   ========================================================================== */
+
+/* 立方体：六面壁纸 + 3 秒完整展示 */
+.cube-overlay.is-in .cube-stage {
+  animation: cube-showcase 3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.cube-overlay.is-out { opacity: 0; transition: opacity 0.55s ease; }
+.cube-face {
+  background-image:
+    linear-gradient(150deg, rgba(2, 5, 9, 0.50), rgba(2, 5, 9, 0.82)),
+    linear-gradient(0deg, rgba(2, 5, 9, 0.25), rgba(2, 5, 9, 0.25)),
+    var(--face-bg);
+  background-size: cover;
+  background-position: center;
+  background-blend-mode: normal;
+  color: #fff;
+  font-family: var(--font-ui);
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  overflow: hidden;
+}
+.cube-face::before {
+  content: "";
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  pointer-events: none;
+}
+.cube-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 39px, rgba(255, 255, 255, 0.07) 40px),
+    repeating-linear-gradient(0deg, transparent 0 39px, rgba(255, 255, 255, 0.07) 40px);
+  pointer-events: none;
+}
+.cube-face b {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-ui);
+  font-size: clamp(34px, 6vw, 74px);
+  font-weight: 650;
+  letter-spacing: -0.06em;
+}
+.cube-face span {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 255, 255, 0.56);
+}
+@keyframes cube-showcase {
+  0% { transform: rotateX(-24deg) rotateY(-42deg) scale(0.14); }
+  8% { transform: rotateX(-18deg) rotateY(0deg) scale(0.92); }
+  19% { transform: rotateX(-18deg) rotateY(90deg) scale(1); }
+  30% { transform: rotateX(-18deg) rotateY(180deg) scale(1); }
+  41% { transform: rotateX(-18deg) rotateY(270deg) scale(1); }
+  52% { transform: rotateX(-18deg) rotateY(360deg) scale(1); }
+  62% { transform: rotateX(70deg) rotateY(360deg) scale(1); }
+  72% { transform: rotateX(-70deg) rotateY(360deg) scale(1); }
+  83% { transform: rotateX(-14deg) rotateY(450deg) scale(1.04); }
+  100% { transform: rotateX(-9deg) rotateY(540deg) scale(1.28); }
+}
+.cube-overlay.is-out .cube-stage { animation-play-state: running; }
+
+/* 液态玻璃卡片（初心 / 未来） */
+.origin-chapter,
+.next-item {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background:
+    linear-gradient(148deg, rgba(255, 255, 255, 0.20) 0%, rgba(255, 255, 255, 0.045) 36%, rgba(255, 255, 255, 0.015) 64%, rgba(255, 255, 255, 0.11) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.10),
+    0 24px 60px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(30px) saturate(170%);
+  -webkit-backdrop-filter: blur(30px) saturate(170%);
+  transform-style: preserve-3d;
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s, border-color 0.4s;
+}
+.origin-chapter::before,
+.next-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.26), transparent 44%),
+    radial-gradient(120% 90% at 12% -10%, rgba(255, 255, 255, 0.42), transparent 48%);
+  opacity: 0.7;
+  pointer-events: none;
+  transition: opacity 0.35s;
+}
+.origin-chapter::after,
+.next-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.1) 30%, transparent 55%, rgba(255, 255, 255, 0.35) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.65;
+  pointer-events: none;
+}
+.origin-chapter > *,
+.next-item > * { position: relative; z-index: 1; }
+.origin-chapter:hover,
+.next-item:hover {
+  transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-7px);
+  border-color: rgba(255, 255, 255, 0.46);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.75),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.12),
+    -10px 14px 0 rgba(255, 255, 255, 0.035),
+    0 34px 80px rgba(0, 0, 0, 0.6);
+}
+.origin-chapter:hover::before,
+.next-item:hover::before { opacity: 1; }
+
+/* 初心卡片：壁纸 + 图标 */
+.origin-chapter {
+  background-image:
+    linear-gradient(180deg, rgba(2, 5, 9, 0.12) 0%, rgba(2, 5, 9, 0.66) 62%, rgba(2, 5, 9, 0.94) 100%),
+    var(--card-bg);
+  background-size: cover;
+  background-position: center;
+}
+.origin-chapter .origin-chapter__num { color: rgba(255, 255, 255, 0.55); }
+.origin-chapter p { color: rgba(255, 255, 255, 0.64); }
+.card-mark {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  z-index: 2;
+  width: 48px;
+  height: 48px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: #0a0f16;
+}
+.card-mark img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.next-item { min-height: 250px; }
+
+/* 未来卡片：视频壁纸透过玻璃 */
+.next-roadmap {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: clamp(18px, 3vw, 34px);
+  padding-right: clamp(18px, 3vw, 34px);
+}
+.next-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.62;
+  filter: grayscale(0.28) brightness(0.45) contrast(1.08);
+  pointer-events: none;
+}
+.next-roadmap::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(180deg, rgba(2, 5, 9, 0.42), rgba(2, 5, 9, 0.12) 38%, rgba(2, 5, 9, 0.86) 100%),
+    radial-gradient(ellipse at 70% 15%, rgba(255, 255, 255, 0.08), transparent 52%);
+  pointer-events: none;
+}
+.next-roadmap > * { position: relative; z-index: 2; }
+.next-item {
+  background:
+    linear-gradient(148deg, rgba(255, 255, 255, 0.15) 0%, rgba(35, 45, 57, 0.30) 40%, rgba(10, 16, 24, 0.44) 100%);
+  color: #fff;
+}
+.next-item p { color: rgba(255, 255, 255, 0.62); }
+.next-item .next-item__num { color: rgba(255, 255, 255, 0.5); }
+.next-item .next-item__state { color: rgba(255, 255, 255, 0.42); }
+
+/* 游戏卡也加一层液态玻璃高光 */
+.game-card {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    -8px 12px 0 rgba(255, 255, 255, 0.025),
+    0 26px 64px rgba(0, 0, 0, 0.55) !important;
+  backdrop-filter: blur(24px) saturate(150%);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+
+/* 文字逐词浮现 */
+.text-split .word {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  margin-right: 0;
+  white-space: normal; overflow-wrap: anywhere;
+}
+.text-split .word-in {
+  display: inline-block;
+  transform: translateY(120%) rotate(4deg);
+  opacity: 0;
+  transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+  transition-delay: calc(var(--d, 0) * 28ms);
+}
+.text-split.text-in .word-in,
+[data-reveal].is-in .text-split .word-in { transform: none; opacity: 1; }
+.text-split .word-in { will-change: transform, opacity; }
+
+/* 动态背景文字 / 水墨 */
+.bg-float,
+.bg-ink {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bg-word {
+  position: absolute;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.09);
+  font-family: var(--font-ui);
+  font-weight: 650;
+  letter-spacing: -0.07em;
+  line-height: 0.8;
+  white-space: nowrap;
+  will-change: transform;
+  animation: bg-word-drift 28s ease-in-out infinite alternate;
+}
+.bg-word--1 { left: -4vw; top: 12vh; font-size: clamp(100px, 17vw, 280px); animation-duration: 32s; }
+.bg-word--2 { right: -8vw; top: 46vh; font-size: clamp(70px, 11vw, 180px); animation-delay: -9s; }
+.bg-word--3 { left: 4vw; bottom: 4vh; font-size: clamp(120px, 20vw, 340px); animation-delay: -17s; animation-duration: 38s; }
+.bg-word--4 { right: 8vw; bottom: 18vh; font-size: clamp(80px, 14vw, 230px); animation-delay: -5s; }
+@keyframes bg-word-drift {
+  0% { transform: translate3d(0, 0, 0) rotate(-2deg); }
+  50% { transform: translate3d(2vw, -2vh, 0) rotate(1deg); }
+  100% { transform: translate3d(-1vw, 2vh, 0) rotate(-1deg); }
+}
+.bg-ink {
+  inset: -20%;
+  z-index: 0;
+  background:
+    radial-gradient(38% 30% at 18% 24%, rgba(255, 255, 255, 0.10), transparent 66%),
+    radial-gradient(30% 26% at 82% 52%, rgba(195, 220, 235, 0.08), transparent 68%),
+    radial-gradient(38% 34% at 48% 92%, rgba(255, 255, 255, 0.06), transparent 70%);
+  filter: blur(42px);
+  animation: ink-breathe 24s ease-in-out infinite alternate;
+  opacity: 0.8;
+}
+@keyframes ink-breathe {
+  from { transform: translate3d(-1%, -1%, 0) scale(1); }
+  to { transform: translate3d(2%, 1%, 0) scale(1.06); }
+}
+
+/* 苹果式黑白留白 */
+.origin-hero, .next-hero { box-shadow: 0 30px 90px rgba(0, 0, 0, 0.38); }
+.origin-marquee, .landing-ticker { opacity: 0.65; }
+
+@media (max-width: 900px) {
+  .next-roadmap { padding-left: 14px; padding-right: 14px; }
+  .next-item { min-height: 210px; }
+  .card-mark { width: 40px; height: 40px; border-radius: 12px; right: 14px; top: 14px; }
+  .bg-word--2, .bg-word--4 { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cube-overlay.is-in .cube-stage { animation: none !important; transform: rotateX(-14deg) rotateY(224deg) scale(1); }
+  .bg-word, .bg-ink { animation: none !important; }
+  .text-split .word-in { transform: none; opacity: 1; transition: none; }
+  .origin-chapter, .next-item { transition: none; }
+}
+
+/* 未来卡片：每张卡内部视频壁纸 */
+.next-item { overflow: hidden; }
+.next-card-video {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  opacity: 0.58;
+  filter: grayscale(0.25) brightness(0.72) contrast(1.05);
+  pointer-events: none;
+  border-radius: inherit;
+}
+.next-item::before {
+  z-index: 1;
+  opacity: 0.55;
+  background:
+    linear-gradient(180deg, rgba(2, 5, 9, 0.18) 0%, rgba(2, 5, 9, 0.45) 50%, rgba(2, 5, 9, 0.82) 100%),
+    radial-gradient(420px circle at var(--mx, 50%) var(--my, 0%), rgba(255, 255, 255, 0.22), transparent 44%);
+}
+.next-item > * { z-index: 2; }
+.next-item::after { z-index: 3; }
+.next-item .card-mark { z-index: 4; }
